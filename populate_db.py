@@ -17,7 +17,7 @@ cursor = connection.cursor()
 # instantiate trade api
 api = tradeapi.REST(API_KEY, SECRET_KEY, base_url = ENDPOINT)
 
-
+# list_assets returns all the market symbols
 assets = api.list_assets()
 
 print(sys.getsizeof(assets) / 1024)
