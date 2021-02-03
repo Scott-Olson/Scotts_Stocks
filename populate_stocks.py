@@ -6,12 +6,13 @@ import alpaca_trade_api as tradeapi
 import sys
 
 # api secrets
-API_KEY = secrets.api_key
-SECRET_KEY = secrets.secret_key
-ENDPOINT = secrets.endpoint
+API_KEY = secrets.API_KEY
+SECRET_KEY = secrets.SECRET_KEY
+ENDPOINT = secrets.BASE_URL
+DB_FILE = secrets.DB_FILE
 
 # set up databse connection
-connection = sqlite3.connect('app.db')
+connection = sqlite3.connect(DB_FILE)
 connection.row_factory = sqlite3.Row
 cursor = connection.cursor()
 
