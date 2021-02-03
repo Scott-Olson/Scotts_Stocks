@@ -1,10 +1,11 @@
 secrets.py
 
-__pycache__
+__pycache__/*
 
 stocks/
 
 app.db
+*.db
 
 # Editors
 .vscode/

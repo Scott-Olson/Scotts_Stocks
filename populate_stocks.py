@@ -18,7 +18,7 @@ cursor = connection.cursor()
 
 
 # instantiate trade api
-api = tradeapi.REST(API_KEY, SECRET_KEY, base_url = ENDPOINT)
+api = tradeapi.REST(API_KEY, SECRET_KEY, base_url=ENDPOINT)
 
 # list_assets returns all the market symbols
 assets = api.list_assets()
@@ -26,10 +26,11 @@ assets = api.list_assets()
 print(sys.getsizeof(assets) / 1024)
 print(len(assets))
 
+
 def fetch_current_symbols(cursor):
     # fetch the rows from the db
     cursor.execute("""
-        SELECT symbol, company FROM stock
+        SELECT symbol, name FROM stock
     """)
     rows = cursor.fetchall()
     # return all the symbols
@@ -43,7 +44,7 @@ symbols = fetch_current_symbols(cursor)
 
 for asset in assets:
     # structure the query and params as would be expected by SQLite3
-    query = "INSERT INTO stock(symbol, company) VALUES (?, ?)"
+    query = "INSERT INTO stock(symbol, name) VALUES (?, ?)"
     params = (asset.symbol, asset.name)
     try:
         # constrain the try to active and tradable stocks
@@ -57,8 +58,5 @@ for asset in assets:
         print(e)
 
 
-
 # save changes to the db
 connection.commit()
-
-
