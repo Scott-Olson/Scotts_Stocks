@@ -1,9 +1,8 @@
-import sqlite3
 import secrets
-import alpaca_trade_api as tradeapi
-
-# import for testing
+import sqlite3
 import sys
+
+import alpaca_trade_api as tradeapi
 
 # api secrets
 API_KEY = secrets.API_KEY
