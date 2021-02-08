@@ -3,7 +3,7 @@ import sqlite3
 import alpaca_trade_api as tradeapi
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
+# from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 
@@ -23,17 +23,17 @@ def fetch_current_symbols():
     cursor = connection.cursor()
     # fetch the rows from the db
     cursor.execute("""
-        SELECT symbol, name FROM stock
+        SELECT id, symbol, name FROM stock ORDER BY symbol
     """)
     rows = cursor.fetchall()
     # return all the symbols
-    symbols = [(row['symbol'], row['name']) for row in rows]
+    # symbols = [(row['symbol'], row['name']) for row in rows]
 
-    return symbols
+    return rows
 
 
 # decorator from fast api routing.
 @app.get("/")
-def index():
+def index(request: Request):
     symbols = fetch_current_symbols()
-    return {"title": "Dashboard", "stocks": symbols}
+    return templates.TemplateResponse("index.html", {"request": request, "stocks": symbols})
