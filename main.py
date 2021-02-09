@@ -83,36 +83,33 @@ def fetch_new_closing_pattern_stocks(direction: str):
 
     print(f"Filtering closing to {direction}")
 
-    if direction == "max":
-        print("in max query")
+    if direction == "highs":
         cursor.execute("""
             SELECT * FROM (
                 SELECT symbol, name, stock_id, max(close), date
-                FROM stock_price JOIN stock ON stock_id = stock_price.stock_id
+                FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
                 GROUP BY stock_id
                 ORDER BY symbol
             ) WHERE date = ?
         """, (get_todays_date_ISO(), ))
         rows = cursor.fetchall()
+        return rows
 
-    if direction == "min":
-        print("in min query")
+    if direction == "lows":
         cursor.execute("""
             SELECT * FROM (
                 SELECT symbol, name, stock_id, min(close), date
-                FROM stock_price JOIN stock ON stock_id = stock_price.stock_id
+                FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
                 GROUP BY stock_id
                 ORDER BY symbol
             ) WHERE date = ?
         """, (get_todays_date_ISO(), ))
         rows = cursor.fetchall()
+        return rows
 
     else:
         print("Query params not valid, returning all stocks")
         return fetch_current_symbols()
-
-    print(f"Found {len(rows)} matching that query...")
-    return rows
 
 
 # decorator from fast api routing.
@@ -124,20 +121,23 @@ def index(request: Request):
     stock_filter = request.query_params.get("filter", False)
 
     if stock_filter == "new_intraday_highs":
-        pass
-
-    if stock_filter == "new_closing_highs":
-        symbols = fetch_new_closing_pattern_stocks("max")
-        print(f"Filtered to closing highs len: {len(symbols)}")
+        symbols = []
+        print(f"Filtered to intraday highs len: {len(symbols)}")
 
     if stock_filter == "new_intraday_lows":
-        pass
+        symbols = []
+        print(f"Filtered to intraday lows len: {len(symbols)}")
+
+    if stock_filter == "new_closing_highs":
+        symbols = fetch_new_closing_pattern_stocks("highs")
+        print(f"Filtered to closing highs len: {len(symbols)}")
 
     if stock_filter == "new_closing_lows":
-        symbols = fetch_new_closing_pattern_stocks("min")
+        symbols = fetch_new_closing_pattern_stocks("lows")
         print(f"Filtered to closing lows len: {len(symbols)}")
 
     else:
+        print("Fetching landing page, no filter")
         symbols = fetch_current_symbols()
 
     return templates.TemplateResponse("index.html", {"request": request, "stocks": symbols})
