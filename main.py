@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 # from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from datetime import date
 
 
 API_KEY = secrets.API_KEY
@@ -16,6 +17,15 @@ DB_FILE = secrets.DB_FILE
 app = FastAPI()
 api = tradeapi.REST(API_KEY, SECRET_KEY, base_url=TRADE_ENDPOINT)
 templates = Jinja2Templates(directory="templates")
+
+# returns current date in ISO format
+# can be used later to alter if for queries if need be
+# should check for weekend as well?? revert to closest trading day??
+
+
+def get_todays_date_ISO():
+    print("generating date...")
+    return date.today().isoformat()
 
 
 def fetch_current_symbols() -> list:
@@ -63,6 +73,47 @@ def fetch_stock_current_price(symbol: str):
 
     return
 
+# returns stocks that hit a new max close on specified date
+
+
+def fetch_new_closing_pattern_stocks(direction: str):
+    connection = sqlite3.connect(DB_FILE)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    print(f"Filtering closing to {direction}")
+
+    if direction == "max":
+        print("in max query")
+        cursor.execute("""
+            SELECT * FROM (
+                SELECT symbol, name, stock_id, max(close), date
+                FROM stock_price JOIN stock ON stock_id = stock_price.stock_id
+                GROUP BY stock_id
+                ORDER BY symbol
+            ) WHERE date = ?
+        """, (get_todays_date_ISO(), ))
+        rows = cursor.fetchall()
+
+    if direction == "min":
+        print("in min query")
+        cursor.execute("""
+            SELECT * FROM (
+                SELECT symbol, name, stock_id, min(close), date
+                FROM stock_price JOIN stock ON stock_id = stock_price.stock_id
+                GROUP BY stock_id
+                ORDER BY symbol
+            ) WHERE date = ?
+        """, (get_todays_date_ISO(), ))
+        rows = cursor.fetchall()
+
+    else:
+        print("Query params not valid, returning all stocks")
+        return fetch_current_symbols()
+
+    print(f"Found {len(rows)} matching that query...")
+    return rows
+
 
 # decorator from fast api routing.
 @app.get("/")
@@ -72,9 +123,23 @@ def index(request: Request):
     # False is default in this function if no filter found
     stock_filter = request.query_params.get("filter", False)
 
-    if stock_filter == "new_intraday_high":
+    if stock_filter == "new_intraday_highs":
+        pass
 
-    symbols = fetch_current_symbols()
+    if stock_filter == "new_closing_highs":
+        symbols = fetch_new_closing_pattern_stocks("max")
+        print(f"Filtered to closing highs len: {len(symbols)}")
+
+    if stock_filter == "new_intraday_lows":
+        pass
+
+    if stock_filter == "new_closing_lows":
+        symbols = fetch_new_closing_pattern_stocks("min")
+        print(f"Filtered to closing lows len: {len(symbols)}")
+
+    else:
+        symbols = fetch_current_symbols()
+
     return templates.TemplateResponse("index.html", {"request": request, "stocks": symbols})
 
 

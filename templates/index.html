@@ -5,12 +5,13 @@
 <form method="GET">
     <select name="filter">
         <option value="">All Stocks</option>
-        <option value="new_intraday_high">New Intraday High</option>
-        <option value="new_closing_highs">New Closing High</option>
-        <option value="new_intraday_low">New Intraday Low</option>
-        <option value="new_closing_low">New Closing Low</option>
+        <option value="new_intraday_high">New Intraday Highs</option>
+        <option value="new_closing_highs">New Closing Highs</option>
+        <option value="new_intraday_lows">New Intraday Lows</option>
+        <option value="new_closing_lows">New Closing Lows</option>
     </select>
     <input type="submit" />
+    <p> displaying {{ stocks|length }} stocks.</p>
 </form>
 <table class="ui selectable inverted table">
     <thead>
