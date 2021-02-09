@@ -43,8 +43,8 @@ symbols = fetch_current_symbols(cursor)
 
 for asset in assets:
     # structure the query and params as would be expected by SQLite3
-    query = "INSERT INTO stock(symbol, name) VALUES (?, ?)"
-    params = (asset.symbol, asset.name)
+    query = "INSERT INTO stock(symbol, name, exchange) VALUES (?, ?, ?)"
+    params = (asset.symbol, asset.name, asset.exchange)
     try:
         # constrain the try to active and tradable stocks
         if asset.status == 'active' and asset.tradable and asset.symbol not in symbols:
