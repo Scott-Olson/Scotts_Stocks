@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1 class="ui header ">
+    <a href="/">Stocks
+        <i class="angle double right icon"></i>
+    </a>
+    {{current_strat.name|replace('_', ' ')|title()}}
+</h1>
+<!-- use jinja2 filters to remove '_' and turn the string into title cased -->
+
+<h3>Stocks in this strategy:</h3>
+<table class="ui inverted table">
+    <thead>
+        <tr>
+            <th>Symbol</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in stocks %}
+        <tr>
+            <td><a href="/stock/{{stock.symbol}}"> {{stock.symbol}} </a></td>
+            <td>{{stock.name}}</td>
+        </tr>
+
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+{% endblock %}

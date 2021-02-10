@@ -1,6 +1,14 @@
 {% extends "layout.html" %}
 
 {% block content %}
+
+<head>
+    <script>
+        $('.ui.dropdown')
+            .dropdown()
+            ;
+    </script>
+</head>
 <h1 class="ui header ">
     <a href="/">Stocks
         <i class="angle double right icon"></i>
@@ -34,6 +42,18 @@
     </script>
 </div>
 <!-- TradingView Widget END -->
+
+<form method="POST" action="/stock/{{stock_info.symbol}}/apply_strategy/">
+    <select name="strategy_id">
+        {% for strat in strategies %}
+        <option value="{{strat.id}}">{{strat.name|replace("_", " ")|title()}}</option>
+        {% endfor %}
+    </select>
+    <input type="hidden" name="stock_id" value="{{stock_info.id}}" />
+    <input class="button" type="submit" value="Apply Strategy" />
+
+</form>
+
 <table class="ui slectable striped table">
     <thead>
         <tr>
@@ -61,6 +81,13 @@
 
 
 </table>
+
+
+<script>
+    $('select.dropdown')
+        .dropdown()
+        ;
+</script>
 
 
 
