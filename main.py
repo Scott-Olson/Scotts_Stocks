@@ -24,7 +24,6 @@ templates = Jinja2Templates(directory="templates")
 
 
 def get_todays_date_ISO():
-    print("generating date...")
     return date.today().isoformat()
 
 
@@ -70,7 +69,6 @@ def fetch_stock_historic_price(symbol: str, id: int):
 
 def fetch_stock_current_price(symbol: str):
     # api = tradeapi.REST(API_KEY, SECRET_KEY, base_url=DATA_ENDPOINT)
-
     return
 
 # returns stocks that hit a new max close on specified date
@@ -112,13 +110,10 @@ def fetch_new_closing_pattern_stocks(direction: str):
         return fetch_current_symbols()
 
 
-# decorator from fast api routing.
-@app.get("/")
-def index(request: Request):
-    # built in function in the Request object
-    # allows for filtering/params without seperate routes
-    # False is default in this function if no filter found
-    stock_filter = request.query_params.get("filter", False)
+# accepts the filter string, returns list of symbols by filter
+def filter_stocks(stock_filter: str):
+    if not stock_filter:
+        symbols = fetch_current_symbols()
 
     if stock_filter == "new_intraday_highs":
         symbols = []
@@ -136,9 +131,20 @@ def index(request: Request):
         symbols = fetch_new_closing_pattern_stocks("lows")
         print(f"Filtered to closing lows len: {len(symbols)}")
 
-    else:
-        print("Fetching landing page, no filter")
-        symbols = fetch_current_symbols()
+    return symbols
+
+# decorator from fast api routing.
+
+
+@app.get("/")
+def index(request: Request):
+    # built in function in the Request object
+    # allows for filtering/params without seperate routes
+    # False is default in this function if no filter found
+    stock_filter = request.query_params.get("filter", False)
+    print(f"CURRENT FILTER: {stock_filter}")
+    # applies current stock filter to symbols
+    symbols = filter_stocks(stock_filter)
 
     return templates.TemplateResponse("index.html", {"request": request, "stocks": symbols})
 
