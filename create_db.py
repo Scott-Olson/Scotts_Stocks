@@ -34,6 +34,37 @@ cursor.execute(
     ) 
     """
 )
+
+# strategy table
+cursor.execute(
+    """
+    CREATE TABLE IF NOT EXISTS strategy (
+        id INTEGER PRIMARY KEY,
+        name NOT NULL,
+        description NOT NULL
+    )
+""")
+
+# table of stocks for the strategy table
+cursor.execute(
+    """ 
+    CREATE TABLE IF NOT EXISTS stock_strategy (
+        stock_id INTEGER NOT NULL,
+        strategy_id INTEGER NOT NULL,
+        FOREIGN KEY (stock_id) REFERENCES stock (id),
+        FOREIGN KEY (strategy_id) REFERENCES strategy (id)
+    )
+""")
+
+# example strategies
+strategies = [('opening_range_breakout', "A positive break from the opening range"),
+              ('opening_range_breakdown', "A negative break from the opening range")]
+
+for strat, desc in strategies:
+    cursor.execute("""
+        INSERT INTO strategy (name, description) VALUES (?, ?)
+    """, (strat, desc))
+
 # connection commit the current transaction
 # if you commit each action, changes can be written and rolled back
 connection.commit()
