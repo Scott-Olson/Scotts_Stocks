@@ -151,17 +151,53 @@ def fetch_new_closing_pattern_stocks(direction: str):
         return fetch_current_symbols()
 
 
+def filter_intraday_stocks(direction: str):
+    connection = sqlite3.connect(DB_FILE)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    print(f"Filtering intraday to {direction}")
+
+    if direction == "highs":
+        cursor.execute("""
+            SELECT * FROM (
+                SELECT symbol, name, stock_id, max(high), date
+                FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
+                GROUP BY stock_id
+                ORDER BY symbol
+            ) WHERE date = (SELECT max(date) FROM stock_price)
+        """)
+        rows = cursor.fetchall()
+        return rows
+
+    if direction == "lows":
+        cursor.execute("""
+            SELECT * FROM (
+                SELECT symbol, name, stock_id, min(low), date
+                FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
+                GROUP BY stock_id
+                ORDER BY symbol
+            ) WHERE date = (SELECT max(date) FROM stock_price)
+        """)
+        rows = cursor.fetchall()
+        return rows
+
+    else:
+        print("Query params not valid, returning all stocks")
+        return fetch_current_symbols()
+
+
 # accepts the filter string, returns list of symbols by filter
 def filter_stocks(stock_filter: str):
     if not stock_filter:
         symbols = fetch_current_symbols()
 
     if stock_filter == "new_intraday_highs":
-        symbols = []
+        symbols = filter_intraday_stocks("highs")
         print(f"Filtered to intraday highs len: {len(symbols)}")
 
     if stock_filter == "new_intraday_lows":
-        symbols = []
+        symbols = filter_intraday_stocks("lows")
         print(f"Filtered to intraday lows len: {len(symbols)}")
 
     if stock_filter == "new_closing_highs":
