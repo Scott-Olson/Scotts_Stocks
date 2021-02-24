@@ -31,6 +31,8 @@ There are also plans to support options and algorithmic trading in the future.
 
 I would love to create a bot that trades throughout the day and posts it's trades/value on a live chart.
 
+![Screenshot of GME listing](screenshots/Screen%20Shot%202021-02-24%20at%2012.58.46%20PM.png)
+
 ## 🎈 Usage <a name="usage"></a>
 This app is built on FastAPI and Uvicorn. To start a local Uvicorn server run:
 
